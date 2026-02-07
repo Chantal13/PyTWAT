@@ -7,6 +7,7 @@ Uses telnetlib3 for async telnet with proper VT320 support.
 import asyncio
 from typing import Optional, Callable
 import telnetlib3
+import codecs
 
 from ..core.event_bus import get_event_bus, Event, EventType
 
@@ -99,15 +100,25 @@ class TelnetClient:
         """Background task to read data from server."""
         try:
             while self.connected and self.reader:
-                # Read raw data from server
+                # Read data from server - telnetlib3 returns strings
                 data = await self.reader.read(1024)
                 if not data:
                     # Connection closed by server
                     await self.disconnect()
                     break
 
-                # telnetlib3 returns strings already decoded
-                # Data should already be decoded properly
+                # WORKAROUND: telnetlib3 encoding parameter doesn't always work correctly
+                # The data comes as a string but may have been decoded wrong
+                # Try to re-encode as latin-1 (preserves bytes) and decode as cp437
+                try:
+                    # Convert string back to bytes (assuming it was decoded as latin-1/utf-8)
+                    # then properly decode as CP437
+                    data_bytes = data.encode('latin-1', errors='ignore')
+                    data = data_bytes.decode('cp437', errors='replace')
+                except (UnicodeDecodeError, UnicodeEncodeError):
+                    # If conversion fails, use data as-is
+                    pass
+
                 self.event_bus.publish(Event(EventType.DATA_RECEIVED, {"data": data}))
         except asyncio.CancelledError:
             pass
