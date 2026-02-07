@@ -122,8 +122,10 @@ class MainWindow(QMainWindow):
     def _on_data_received(self, event: Event):
         """Handle data received from server."""
         data = event.data.get("data", "")
+        # Append data directly to terminal (with ANSI color support)
+        self.terminal_widget.append_content(data)
+        # Also feed to emulator for future parsing (Phase 2)
         self.terminal_emulator.feed(data)
-        self.terminal_widget.set_content("\n".join(self.terminal_emulator.get_display()))
 
     def _on_connected(self, event: Event):
         """Handle connection established."""
