@@ -39,14 +39,16 @@ class TelnetClient:
         """
         try:
             # Connect with terminal type negotiation
+            # Try 'ansi-bbs' or 'ansi' - BBS systems often expect specific TERM values
             self.reader, self.writer = await asyncio.wait_for(
                 telnetlib3.open_connection(
                     host,
                     port,
-                    term='ansi',  # Advertise ANSI terminal support
+                    term='ansi-bbs',  # BBS-specific ANSI terminal type
                     cols=80,
                     rows=24,
-                    encoding='cp437'  # Use IBM extended ASCII (CP437) for BBS/ANSI art
+                    encoding='cp437',  # Use IBM extended ASCII (CP437) for BBS/ANSI art
+                    connect_minwait=0.1  # Reduce connection negotiation wait
                 ),
                 timeout=timeout
             )

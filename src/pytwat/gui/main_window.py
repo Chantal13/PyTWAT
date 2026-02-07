@@ -83,14 +83,15 @@ class MainWindow(QMainWindow):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
-        # Run asyncio tasks periodically
+        # Run asyncio tasks periodically (less frequently to reduce CPU usage)
         self.async_timer = QTimer()
         self.async_timer.timeout.connect(self._process_async_tasks)
-        self.async_timer.start(10)  # Process every 10ms
+        self.async_timer.start(50)  # Process every 50ms (was 10ms - too fast!)
 
     def _process_async_tasks(self):
         """Process asyncio tasks in the Qt event loop."""
-        self.loop.stop()
+        # Run pending asyncio tasks without blocking
+        self.loop.call_soon(self.loop.stop)
         self.loop.run_forever()
 
     def _on_connect_clicked(self):

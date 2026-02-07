@@ -103,6 +103,9 @@ class TerminalWidget(QWidget):
         Args:
             content: Content to append (may contain ANSI codes)
         """
+        # Disable updates during append for better performance
+        self.text_edit.setUpdatesEnabled(False)
+
         cursor = self.text_edit.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
 
@@ -111,6 +114,9 @@ class TerminalWidget(QWidget):
 
         # Auto-scroll to bottom
         self.text_edit.setTextCursor(cursor)
+
+        # Re-enable updates and refresh once
+        self.text_edit.setUpdatesEnabled(True)
         self.text_edit.ensureCursorVisible()
 
     def _append_with_ansi(self, cursor, text):
