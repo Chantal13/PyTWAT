@@ -40,7 +40,7 @@ class TelnetClient:
         """
         try:
             # Connect with terminal type negotiation
-            # Use 'latin-1' encoding to preserve raw bytes, we'll decode as CP437 ourselves
+            # Modern BBS systems send UTF-8 (Unicode box-drawing chars)
             self.reader, self.writer = await asyncio.wait_for(
                 telnetlib3.open_connection(
                     host,
@@ -48,8 +48,8 @@ class TelnetClient:
                     term='ansi-bbs',  # BBS-specific ANSI terminal type
                     cols=80,
                     rows=24,
-                    encoding='latin-1',  # Use latin-1 to preserve byte values (we decode CP437 later)
-                    connect_minwait=0.1  # Reduce connection negotiation wait
+                    encoding='utf-8',  # Modern BBS use UTF-8 (Unicode box chars)
+                    connect_minwait=0.1
                 ),
                 timeout=timeout
             )
@@ -100,35 +100,15 @@ class TelnetClient:
         """Background task to read data from server."""
         try:
             while self.connected and self.reader:
-                # Read data from server
-                # Since we set encoding='latin-1', this preserves all byte values 0-255
+                # Read data from server (already decoded as UTF-8)
                 data = await self.reader.read(1024)
                 if not data:
                     # Connection closed by server
                     await self.disconnect()
                     break
 
-                # Selective CP437 decoding: only convert high bytes (128-255)
-                # Keep ASCII range (0-127) intact for ANSI escape sequences
-                try:
-                    data_bytes = data.encode('latin-1')
-                    result = []
-
-                    for byte_val in data_bytes:
-                        if byte_val < 128:
-                            # ASCII range - keep as-is (includes ANSI escapes)
-                            result.append(chr(byte_val))
-                        else:
-                            # High bytes - decode through CP437
-                            # Convert single byte to its CP437 Unicode equivalent
-                            cp437_char = bytes([byte_val]).decode('cp437', errors='replace')
-                            result.append(cp437_char)
-
-                    data = ''.join(result)
-                except (UnicodeDecodeError, UnicodeEncodeError) as e:
-                    # If conversion fails, use data as-is
-                    pass
-
+                # Data is already properly decoded as UTF-8 by telnetlib3
+                # Modern BBS send Unicode box-drawing chars in UTF-8
                 self.event_bus.publish(Event(EventType.DATA_RECEIVED, {"data": data}))
         except asyncio.CancelledError:
             pass
