@@ -384,22 +384,6 @@ pymysql = ["pymysql"]
 sqlcipher = ["sqlcipher3_binary"]
 
 [[package]]
-name = "telnetlib3"
-version = "2.2.0"
-description = "Python Telnet server and client CLI and Protocol library"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "telnetlib3-2.2.0-py3-none-any.whl", hash = "sha256:028648619e66d1a746791a3ef3e2a1cc7ffe4b78cf283c8028bef9e493f30554"},
-    {file = "telnetlib3-2.2.0.tar.gz", hash = "sha256:85312604c9f52914938fe3697e5bbd219adab446af0df3045f21b07ba5417f73"},
-]
-
-[package.extras]
-docs = ["sphinx (>3)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
-extras = ["prettytable", "ucs-detect (>=2)"]
-
-[[package]]
 name = "typing-extensions"
 version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
@@ -426,4 +410,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "4f78f6b15468b4dc8a94fc4236e7c5a1c23bc637a95c66f43af63b7f3e3dce0d"
+content-hash = "3152f468b486afa095f45ebf0cdc47e6fc5b85e5ed475270f62fa5fd39ace1d3"

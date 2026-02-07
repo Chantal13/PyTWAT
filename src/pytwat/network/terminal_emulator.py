@@ -36,7 +36,75 @@ class TerminalEmulator:
         Args:
             data: Raw data from telnet connection (may contain ANSI codes)
         """
+        # Convert iCE colors (ESC[5m + background) to bright backgrounds for pyte
+        # This is needed because pyte doesn't preserve the blink attribute
+        data = self._convert_ice_colors(data)
+
         self.stream.feed(data.encode('utf-8'))
+
+    def _convert_ice_colors(self, data: str) -> str:
+        """
+        Convert iCE color sequences to bright backgrounds.
+
+        In iCE color mode, ESC[5m (blink) combined with a background color
+        means bright background. We convert these to ESC[10Xm codes that
+        pyte can render directly.
+
+        Args:
+            data: Raw terminal data with ANSI codes
+
+        Returns:
+            Data with iCE colors converted to bright backgrounds
+        """
+        import re
+
+        # Track current state
+        result = []
+        has_blink = False
+        current_bg = None
+
+        # Pattern to match ANSI SGR sequences
+        ansi_pattern = re.compile(r'(\x1b\[([0-9;]*)m)')
+
+        last_end = 0
+        for match in ansi_pattern.finditer(data):
+            # Add text before this code
+            result.append(data[last_end:match.start()])
+
+            codes = match.group(2).split(';') if match.group(2) else ['0']
+            new_codes = []
+
+            for code in codes:
+                if code == '0' or code == '':
+                    # Reset - clear blink state
+                    has_blink = False
+                    current_bg = None
+                    new_codes.append(code)
+                elif code == '5':
+                    # Blink - set flag but don't add to output
+                    has_blink = True
+                elif code.startswith('4') and len(code) == 2 and code[1].isdigit():
+                    # Background color (40-47)
+                    bg_color_num = int(code[1])
+                    current_bg = bg_color_num
+                    if has_blink:
+                        # Convert to bright background (100-107)
+                        new_codes.append(f'10{bg_color_num}')
+                    else:
+                        new_codes.append(code)
+                else:
+                    new_codes.append(code)
+
+            # Reconstruct the ANSI sequence
+            if new_codes:
+                result.append(f'\x1b[{";".join(new_codes)}m')
+
+            last_end = match.end()
+
+        # Add remaining text
+        result.append(data[last_end:])
+
+        return ''.join(result)
 
     def get_display(self) -> List[str]:
         """

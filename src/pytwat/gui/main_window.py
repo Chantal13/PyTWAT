@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QTimer
 
-from .widgets.terminal_widget import TerminalWidget
+from .widgets.bitmap_terminal_widget import BitmapTerminalWidget
 from ..network.telnet_client import TelnetClient
 from ..network.terminal_emulator import TerminalEmulator
 from ..core.event_bus import get_event_bus, Event, EventType
@@ -68,8 +68,8 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(conn_layout)
 
-        # Terminal widget
-        self.terminal_widget = TerminalWidget()
+        # Terminal widget (bitmap-based for pixel-perfect rendering)
+        self.terminal_widget = BitmapTerminalWidget(columns=80, lines=24)
         self.terminal_widget.data_entered.connect(self._on_terminal_input)
         layout.addWidget(self.terminal_widget)
 
@@ -123,10 +123,10 @@ class MainWindow(QMainWindow):
     def _on_data_received(self, event: Event):
         """Handle data received from server."""
         data = event.data.get("data", "")
-        # Append data directly to terminal (with ANSI color support)
-        self.terminal_widget.append_content(data)
-        # Also feed to emulator for future parsing (Phase 2)
+        # Feed to terminal emulator for proper ANSI/cursor handling
         self.terminal_emulator.feed(data)
+        # Render the screen buffer with proper formatting
+        self.terminal_widget.render_screen(self.terminal_emulator.screen)
 
     def _on_connected(self, event: Event):
         """Handle connection established."""
