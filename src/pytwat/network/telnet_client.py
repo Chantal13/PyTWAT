@@ -101,22 +101,23 @@ class TelnetClient:
         """Background task to read data from server."""
         try:
             while self.connected and self.reader:
-                # Read data from server (ASCII encoded by telnetlib3)
-                data = await self.reader.read(1024)
-                if not data:
-                    # Connection closed by server
-                    await self.disconnect()
-                    break
-
-                # Try to properly decode as UTF-8 with error handling
-                # This preserves ANSI escapes and handles box-drawing chars
+                # Try to read raw bytes from underlying stream
+                # telnetlib3 reader wraps an asyncio StreamReader
                 try:
-                    # Convert back to bytes and decode as UTF-8
-                    data_bytes = data.encode('latin-1', errors='ignore')
-                    data = data_bytes.decode('utf-8', errors='replace')
-                except (UnicodeDecodeError, UnicodeEncodeError):
-                    # If that fails, just use as-is
-                    pass
+                    # Access the underlying stream reader for raw bytes
+                    raw_bytes = await self.reader._stream_reader.read(1024)
+                    if not raw_bytes:
+                        await self.disconnect()
+                        break
+
+                    # Decode as UTF-8 (like iTerm2 does)
+                    data = raw_bytes.decode('utf-8', errors='replace')
+                except AttributeError:
+                    # Fallback if _stream_reader not available
+                    data = await self.reader.read(1024)
+                    if not data:
+                        await self.disconnect()
+                        break
 
                 self.event_bus.publish(Event(EventType.DATA_RECEIVED, {"data": data}))
         except asyncio.CancelledError:
