@@ -1,7 +1,7 @@
 """Tests for the terminal emulator."""
 
 import pytest
-from src.pytwat.network.terminal_emulator import TerminalEmulator
+from pytwat.network.terminal_emulator import TerminalEmulator
 
 
 def test_terminal_emulator_init():

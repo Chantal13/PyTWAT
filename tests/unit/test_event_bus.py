@@ -1,7 +1,7 @@
 """Tests for the event bus."""
 
 import pytest
-from src.pytwat.core.event_bus import EventBus, Event, EventType
+from pytwat.core.event_bus import EventBus, Event, EventType
 
 
 def test_event_bus_subscribe():
