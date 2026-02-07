@@ -40,7 +40,7 @@ class TelnetClient:
         """
         try:
             # Connect with terminal type negotiation
-            # Modern BBS systems send UTF-8 (Unicode box-drawing chars)
+            # Use 'ascii' to get raw-ish data, handle UTF-8 ourselves
             self.reader, self.writer = await asyncio.wait_for(
                 telnetlib3.open_connection(
                     host,
@@ -48,7 +48,8 @@ class TelnetClient:
                     term='ansi-bbs',  # BBS-specific ANSI terminal type
                     cols=80,
                     rows=24,
-                    encoding='utf-8',  # Modern BBS use UTF-8 (Unicode box chars)
+                    encoding='ascii',  # Use ASCII, decode UTF-8 with error handling ourselves
+                    encoding_errors='ignore',  # Ignore errors to preserve escapes
                     connect_minwait=0.1
                 ),
                 timeout=timeout
@@ -100,15 +101,23 @@ class TelnetClient:
         """Background task to read data from server."""
         try:
             while self.connected and self.reader:
-                # Read data from server (already decoded as UTF-8)
+                # Read data from server (ASCII encoded by telnetlib3)
                 data = await self.reader.read(1024)
                 if not data:
                     # Connection closed by server
                     await self.disconnect()
                     break
 
-                # Data is already properly decoded as UTF-8 by telnetlib3
-                # Modern BBS send Unicode box-drawing chars in UTF-8
+                # Try to properly decode as UTF-8 with error handling
+                # This preserves ANSI escapes and handles box-drawing chars
+                try:
+                    # Convert back to bytes and decode as UTF-8
+                    data_bytes = data.encode('latin-1', errors='ignore')
+                    data = data_bytes.decode('utf-8', errors='replace')
+                except (UnicodeDecodeError, UnicodeEncodeError):
+                    # If that fails, just use as-is
+                    pass
+
                 self.event_bus.publish(Event(EventType.DATA_RECEIVED, {"data": data}))
         except asyncio.CancelledError:
             pass
