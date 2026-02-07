@@ -40,7 +40,7 @@ class TelnetClient:
         """
         try:
             # Connect with terminal type negotiation
-            # Try 'ansi-bbs' or 'ansi' - BBS systems often expect specific TERM values
+            # Use 'latin-1' encoding to preserve raw bytes, we'll decode as CP437 ourselves
             self.reader, self.writer = await asyncio.wait_for(
                 telnetlib3.open_connection(
                     host,
@@ -48,7 +48,7 @@ class TelnetClient:
                     term='ansi-bbs',  # BBS-specific ANSI terminal type
                     cols=80,
                     rows=24,
-                    encoding='cp437',  # Use IBM extended ASCII (CP437) for BBS/ANSI art
+                    encoding='latin-1',  # Use latin-1 to preserve byte values (we decode CP437 later)
                     connect_minwait=0.1  # Reduce connection negotiation wait
                 ),
                 timeout=timeout
@@ -100,22 +100,20 @@ class TelnetClient:
         """Background task to read data from server."""
         try:
             while self.connected and self.reader:
-                # Read data from server - telnetlib3 returns strings
+                # Read data from server
+                # Since we set encoding='latin-1', this preserves all byte values 0-255
                 data = await self.reader.read(1024)
                 if not data:
                     # Connection closed by server
                     await self.disconnect()
                     break
 
-                # WORKAROUND: telnetlib3 encoding parameter doesn't always work correctly
-                # The data comes as a string but may have been decoded wrong
-                # Try to re-encode as latin-1 (preserves bytes) and decode as cp437
+                # Convert latin-1 string back to bytes, then decode as CP437
+                # latin-1 is a 1:1 byte mapping, so this preserves ANSI escape sequences
                 try:
-                    # Convert string back to bytes (assuming it was decoded as latin-1/utf-8)
-                    # then properly decode as CP437
-                    data_bytes = data.encode('latin-1', errors='ignore')
+                    data_bytes = data.encode('latin-1')
                     data = data_bytes.decode('cp437', errors='replace')
-                except (UnicodeDecodeError, UnicodeEncodeError):
+                except (UnicodeDecodeError, UnicodeEncodeError) as e:
                     # If conversion fails, use data as-is
                     pass
 
