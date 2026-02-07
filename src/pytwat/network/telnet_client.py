@@ -108,11 +108,23 @@ class TelnetClient:
                     await self.disconnect()
                     break
 
-                # Convert latin-1 string back to bytes, then decode as CP437
-                # latin-1 is a 1:1 byte mapping, so this preserves ANSI escape sequences
+                # Selective CP437 decoding: only convert high bytes (128-255)
+                # Keep ASCII range (0-127) intact for ANSI escape sequences
                 try:
                     data_bytes = data.encode('latin-1')
-                    data = data_bytes.decode('cp437', errors='replace')
+                    result = []
+
+                    for byte_val in data_bytes:
+                        if byte_val < 128:
+                            # ASCII range - keep as-is (includes ANSI escapes)
+                            result.append(chr(byte_val))
+                        else:
+                            # High bytes - decode through CP437
+                            # Convert single byte to its CP437 Unicode equivalent
+                            cp437_char = bytes([byte_val]).decode('cp437', errors='replace')
+                            result.append(cp437_char)
+
+                    data = ''.join(result)
                 except (UnicodeDecodeError, UnicodeEncodeError) as e:
                     # If conversion fails, use data as-is
                     pass
