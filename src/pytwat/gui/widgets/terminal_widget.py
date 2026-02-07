@@ -115,14 +115,15 @@ class TerminalWidget(QWidget):
 
     def _append_with_ansi(self, cursor, text):
         """
-        Append text with ANSI color codes.
+        Append text with ANSI escape codes (colors and control sequences).
 
         Args:
             cursor: QTextCursor to append to
             text: Text with ANSI escape sequences
         """
-        # ANSI escape sequence pattern
-        ansi_pattern = re.compile(r'\x1b\[([0-9;]*)m')
+        # Comprehensive ANSI escape sequence pattern
+        # Matches: colors (\x1b[...m), cursor ops (\x1b[...H/J/K), etc.
+        ansi_pattern = re.compile(r'\x1b\[([0-9;]*)(m|H|J|K|A|B|C|D|s|u|f)?')
 
         current_format = QTextCharFormat()
         current_format.setForeground(QColor("#ffffff"))  # Default white
@@ -134,16 +135,37 @@ class TerminalWidget(QWidget):
                 plain_text = text[last_end:match.start()]
                 cursor.insertText(plain_text, current_format)
 
-            # Parse ANSI code
-            codes = match.group(1).split(';') if match.group(1) else ['0']
-            for code in codes:
-                if code == '0' or code == '':
-                    # Reset
-                    current_format = QTextCharFormat()
-                    current_format.setForeground(QColor("#ffffff"))
-                elif code in self._ansi_colors:
-                    # Set foreground color
-                    current_format.setForeground(self._ansi_colors[code])
+            command = match.group(2)
+            params = match.group(1)
+
+            if command == 'm':
+                # Color/style codes
+                codes = params.split(';') if params else ['0']
+                for code in codes:
+                    if code == '0' or code == '':
+                        # Reset
+                        current_format = QTextCharFormat()
+                        current_format.setForeground(QColor("#ffffff"))
+                    elif code == '1':
+                        # Bold
+                        current_format.setFontWeight(700)
+                    elif code in self._ansi_colors:
+                        # Set foreground color
+                        current_format.setForeground(self._ansi_colors[code])
+                    # Background colors (40-47, 100-107)
+                    elif code.startswith('4') and len(code) == 2:
+                        bg_code = str(int(code) - 10)  # Convert 40->30, etc.
+                        if bg_code in self._ansi_colors:
+                            current_format.setBackground(self._ansi_colors[bg_code])
+            elif command == 'J':
+                # Clear screen commands
+                if params == '2' or params == '':
+                    # Clear entire screen
+                    self.text_edit.clear()
+            elif command == 'K':
+                # Erase to end of line (we'll just ignore for now in scrolling mode)
+                pass
+            # Cursor movement commands (H, A, B, C, D, f) are ignored in scrolling mode
 
             last_end = match.end()
 

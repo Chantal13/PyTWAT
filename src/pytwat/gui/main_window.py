@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         # Connection controls
         conn_layout = QHBoxLayout()
         conn_layout.addWidget(QLabel("Host:"))
-        self.host_input = QLineEdit("thestardock.com")
+        self.host_input = QLineEdit("142.44.247.204")
         conn_layout.addWidget(self.host_input)
 
         conn_layout.addWidget(QLabel("Port:"))

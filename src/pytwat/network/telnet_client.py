@@ -38,8 +38,15 @@ class TelnetClient:
             True if connected successfully
         """
         try:
+            # Connect with terminal type negotiation
             self.reader, self.writer = await asyncio.wait_for(
-                telnetlib3.open_connection(host, port),
+                telnetlib3.open_connection(
+                    host,
+                    port,
+                    term='ansi',  # Advertise ANSI terminal support
+                    cols=80,
+                    rows=24
+                ),
                 timeout=timeout
             )
             self.connected = True
