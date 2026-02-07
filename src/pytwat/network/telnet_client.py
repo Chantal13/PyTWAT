@@ -45,7 +45,8 @@ class TelnetClient:
                     port,
                     term='ansi',  # Advertise ANSI terminal support
                     cols=80,
-                    rows=24
+                    rows=24,
+                    encoding='cp437'  # Use IBM extended ASCII (CP437) for BBS/ANSI art
                 ),
                 timeout=timeout
             )
@@ -96,12 +97,15 @@ class TelnetClient:
         """Background task to read data from server."""
         try:
             while self.connected and self.reader:
+                # Read raw data from server
                 data = await self.reader.read(1024)
                 if not data:
                     # Connection closed by server
                     await self.disconnect()
                     break
 
+                # telnetlib3 returns strings already decoded
+                # Data should already be decoded properly
                 self.event_bus.publish(Event(EventType.DATA_RECEIVED, {"data": data}))
         except asyncio.CancelledError:
             pass
