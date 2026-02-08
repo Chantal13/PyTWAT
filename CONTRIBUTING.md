@@ -37,7 +37,7 @@ If you're new to open source, check out:
 - [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
 - [First Timers Only](https://www.firsttimersonly.com/)
 
-Look for issues labeled `good first issue` or `help wanted` in the issue tracker.
+Look for issues labelled `good first issue` or `help wanted` in the issue tracker.
 
 ## Development Setup
 
@@ -99,8 +99,8 @@ Include in your bug report:
 - Python version (`python --version`)
 - Operating system and version
 - Steps to reproduce
-- Expected behavior
-- Actual behavior
+- Expected behaviour
+- Actual behaviour
 - Error messages or logs
 - Screenshots (if applicable)
 
@@ -338,7 +338,7 @@ Brief description of changes
 Use the bug report template and include:
 - Clear, descriptive title
 - Steps to reproduce
-- Expected vs. actual behavior
+- Expected vs. actual behaviour
 - Environment details
 - Error messages/logs
 - Screenshots if applicable

@@ -36,7 +36,7 @@ PyTWAT solves these problems with:
 - ✅ **Telnet Client** - Async telnet connectivity with robust error handling
 - ✅ **Terminal Emulation** - VT320/ANSI escape sequence support via pyte
 - ✅ **Bitmap Font Rendering** - Pixel-perfect display using PT Mono font
-- ✅ **Color Support** - Full 16-color ANSI palette with proper attributes
+- ✅ **Colour Support** - Full 16-colour ANSI palette with proper attributes
 - ✅ **Character Encoding** - Smart ASCII/UTF-8 with selective CP437 for box drawing
 - ✅ **Event Bus** - Loosely coupled component communication
 - ✅ **Connection Management** - Connect/disconnect to BBS servers
@@ -217,7 +217,7 @@ Server → Telnet Client → Terminal Emulator → GUI Display
 
 - ✅ Project setup (Poetry, directory structure)
 - ✅ Async telnet client with connection management
-- ✅ Terminal widget with ANSI color support
+- ✅ Terminal widget with ANSI colour support
 - ✅ Bitmap font rendering for pixel-perfect display
 - ✅ Character encoding (ASCII/UTF-8/CP437)
 - ✅ Event bus architecture

@@ -44,7 +44,7 @@ J-TWAT is a 2001 Java telnet client for Trade Wars 2002 with automation features
 5. **Automation Layer** (`automation/`)
    - Script base class
    - SST, CIM, port pair trade scripts
-   - Port pair analyzer
+   - Port pair analyser
 
 6. **GUI Layer** (`gui/`)
    - Main window (PyQt6)
@@ -69,10 +69,10 @@ Telnet → Terminal Emulator → Parser → Universe State → Database
 **Goal:** Basic connectivity and display
 - Project setup (Poetry, directory structure)
 - Async telnet client
-- Terminal widget with ANSI colors
+- Terminal widget with ANSI colours
 - Connection dialog
 
-**Deliverable:** Connect to TW server, see colored output, type commands
+**Deliverable:** Connect to TW server, see coloured output, type commands
 
 ### Phase 2: Parsing
 **Goal:** Extract game data
@@ -96,7 +96,7 @@ Telnet → Terminal Emulator → Parser → Universe State → Database
 **Goal:** First working script
 - Script base class
 - Port pair trade script
-- Port pair analyzer
+- Port pair analyser
 - Start/stop controls
 
 **Deliverable:** Run basic port pair trading script
@@ -145,10 +145,10 @@ Telnet → Terminal Emulator → Parser → Universe State → Database
 **Phase 4:**
 - `src/pytwat/automation/script_base.py` - Base script class
 - `src/pytwat/automation/scripts/port_pair_trade.py` - Trading script
-- `src/pytwat/automation/analyzers/port_pair_analyzer.py` - Analysis
+- `src/pytwat/automation/analysers/port_pair_analyser.py` - Analysis
 
 ## Testing Strategy
-- **Unit tests:** Parser, models, analyzers (pytest)
+- **Unit tests:** Parser, models, analysers (pytest)
 - **Integration tests:** Mock TW server
 - **GUI tests:** pytest-qt
 - **Fixtures:** Real TW output samples

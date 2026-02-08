@@ -6,7 +6,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 
 ## Our Standards
 
-### Positive Behaviors
+### Positive Behaviours
 
 We encourage:
 - Being respectful and considerate in communication
@@ -15,7 +15,7 @@ We encourage:
 - Focusing on what's best for the community and project
 - Showing empathy toward other community members
 
-### Unacceptable Behaviors
+### Unacceptable Behaviours
 
 We do not tolerate:
 - Disrespectful, insulting, or derogatory comments
@@ -25,7 +25,7 @@ We do not tolerate:
 
 ## Responsibilities
 
-Project maintainers are responsible for clarifying standards of acceptable behavior and will take appropriate action in response to unacceptable behavior.
+Project maintainers are responsible for clarifying standards of acceptable behaviour and will take appropriate action in response to unacceptable behaviour.
 
 ## Scope
 
@@ -36,7 +36,7 @@ This Code of Conduct applies to all project spaces, including:
 
 ## Enforcement
 
-Instances of unacceptable behavior may be reported to the project maintainers. All complaints will be reviewed and investigated promptly and fairly.
+Instances of unacceptable behaviour may be reported to the project maintainers. All complaints will be reviewed and investigated promptly and fairly.
 
 Project maintainers have the right to remove, edit, or reject comments, commits, code, issues, and other contributions that do not align with this Code of Conduct.
 
