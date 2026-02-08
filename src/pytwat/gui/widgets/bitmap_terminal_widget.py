@@ -19,6 +19,8 @@ class BitmapTerminalWidget(QWidget):
 
     # Signal emitted when user presses a key or clicks mouse
     data_entered = pyqtSignal(str)
+    # Signal emitted when widget is resized (to trigger re-render)
+    resized = pyqtSignal()
 
     def __init__(self, parent=None, columns: int = 80, lines: int = 24):
         super().__init__(parent)
@@ -29,13 +31,14 @@ class BitmapTerminalWidget(QWidget):
         # Mouse support state
         self._mouse_tracking_enabled = True  # Enable by default for BBS compatibility
 
-        # Character dimensions (scaled up for modern displays)
-        self.char_width = 11
-        self.char_height = 22
+        # Character dimensions (will be calculated based on widget size)
+        self.char_width = 11  # Default/minimum
+        self.char_height = 22  # Default/minimum
+        self._font_size = 16  # Default font size
 
-        # Set up font (larger for better readability)
+        # Set up font (will be updated based on scaling)
         # PT Mono for better BBS display
-        self.font = QFont("PT Mono", 16)
+        self.font = QFont("PT Mono", self._font_size)
         self.font.setStyleHint(QFont.StyleHint.Monospace)
         self.font.setFixedPitch(True)
         self.font.setKerning(False)
@@ -227,6 +230,40 @@ class BitmapTerminalWidget(QWidget):
             self.columns * self.char_width,
             self.lines * self.char_height
         )
+
+    def resizeEvent(self, event):
+        """Handle widget resize to scale characters dynamically."""
+        super().resizeEvent(event)
+
+        # Calculate new character dimensions based on available space
+        new_width = event.size().width()
+        new_height = event.size().height()
+
+        # Calculate character size to fit the terminal grid (80x24)
+        # Maintain aspect ratio close to standard terminal characters (roughly 1:2 width:height)
+        available_char_width = new_width // self.columns
+        available_char_height = new_height // self.lines
+
+        # Use the limiting dimension and calculate the other to maintain aspect
+        if available_char_width * 2 > available_char_height:
+            # Height is limiting factor
+            self.char_height = max(16, available_char_height)
+            self.char_width = max(8, self.char_height // 2)
+        else:
+            # Width is limiting factor
+            self.char_width = max(8, available_char_width)
+            self.char_height = max(16, self.char_width * 2)
+
+        # Calculate appropriate font size based on character height
+        # Font size is roughly 70% of character height for good fit
+        self._font_size = max(10, int(self.char_height * 0.7))
+        self.font.setPointSize(self._font_size)
+
+        # Recreate back buffer with new dimensions
+        self._create_back_buffer()
+
+        # Emit signal so main window can re-render content
+        self.resized.emit()
 
     def keyPressEvent(self, event):
         """Handle key press events and emit data."""

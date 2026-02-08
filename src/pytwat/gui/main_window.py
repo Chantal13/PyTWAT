@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
     def _init_ui(self):
         """Initialize the user interface."""
         self.setWindowTitle("PyTWAT - Trade Wars Client")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 880, 600)  # Initial size for 80x24 terminal
 
         # Central widget
         central_widget = QWidget()
@@ -74,10 +74,11 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(conn_layout)
 
-        # Terminal widget (bitmap-based for pixel-perfect rendering)
+        # Terminal widget (bitmap-based, scales with window)
         self.terminal_widget = BitmapTerminalWidget(columns=80, lines=24)
         self.terminal_widget.data_entered.connect(self._on_terminal_input)
-        layout.addWidget(self.terminal_widget)
+        self.terminal_widget.resized.connect(self._on_terminal_resized)
+        layout.addWidget(self.terminal_widget, stretch=1)  # Allow terminal to expand
 
         # Status bar
         self.status_bar = QStatusBar()
@@ -119,6 +120,11 @@ class MainWindow(QMainWindow):
         """Perform the actual render (called by timer)."""
         self.terminal_widget.render_screen(self.terminal_emulator.screen)
         self._render_pending = False
+
+    def _on_terminal_resized(self):
+        """Handle terminal widget resize - re-render current content."""
+        # Re-render the current terminal content at the new size
+        self.terminal_widget.render_screen(self.terminal_emulator.screen)
 
     def _on_connected(self, event: Event):
         """Handle connection established."""
