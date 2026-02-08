@@ -31,23 +31,26 @@ PyTWAT solves these problems with:
 
 ## Features
 
-### Current (Phase 1 - Foundation)
+### Current (Phase 1 - Foundation) ✅ Complete!
 - ✅ **Desktop GUI** - Built with PyQt6 for native look and feel
 - ✅ **Telnet Client** - Async telnet connectivity with robust error handling
 - ✅ **Terminal Emulation** - VT320/ANSI escape sequence support via pyte
 - ✅ **Bitmap Font Rendering** - Pixel-perfect display using PT Mono font
-- ✅ **Colour Support** - Full 16-colour ANSI palette with proper attributes
-- ✅ **Character Encoding** - Smart ASCII/UTF-8 with selective CP437 for box drawing
+- ✅ **Dynamic Text Scaling** - Terminal scales smoothly with window resize
+- ✅ **Centered Display** - Content centered when maximized
+- ✅ **Mouse Support** - SGR mouse protocol for BBS menu navigation
+- ✅ **Colour Support** - Full 16-colour ANSI palette with iCE colour support
+- ✅ **Character Encoding** - Smart CP437 decoding for authentic BBS display
 - ✅ **Event Bus** - Loosely coupled component communication
 - ✅ **Connection Management** - Connect/disconnect to BBS servers
+- ✅ **60 FPS Rendering** - Throttled updates for smooth performance
 
-### Planned (See [PYTWAT-PLAN.md](PYTWAT-PLAN.md))
-- 🚧 **Trade Wars Parser** - Extract sectors, ports, ships, and game state
-- 🚧 **Port Pair Analysis** - Identify profitable trading routes
-- 🚧 **Automation Scripts** - Port trading, exploration, SST, CIM
-- 🚧 **Persistent Database** - SQLite storage for game data
-- 🚧 **Pathfinding** - Optimal route calculation
-- 🚧 **Session Management** - Save and restore game sessions
+### Planned (See [Milestones](https://github.com/Chantal13/PyTWAT/milestones))
+- 📋 **Phase 2: Parsing** - Extract sectors, ports, ships, and game state ([7 issues](https://github.com/Chantal13/PyTWAT/milestone/1))
+- 📋 **Phase 3: Persistence** - SQLite storage with SQLAlchemy ORM ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/2))
+- 📋 **Phase 4: Basic Automation** - Port pair trading script ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/3))
+- 📋 **Phase 5: Full Automation** - SST, CIM, exploration scripts ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/4))
+- 📋 **Phase 6: Polish & Release** - Map visualization, packaging, v1.0 ([7 issues](https://github.com/Chantal13/PyTWAT/milestone/5))
 
 ## Screenshots
 
@@ -105,10 +108,21 @@ The GUI pre-fills with a default Trade Wars server for testing:
 - Host: `142.44.247.204`
 - Port: `23`
 
-### Keyboard Shortcuts
+### Controls
 
+**Keyboard:**
 - **Enter** - Send current input to server
-- Standard text editing shortcuts work in the terminal
+- **Arrow Keys** - Navigation (sent as VT320 escape sequences)
+- **Backspace** - Delete character
+- Standard text editing works in the terminal
+
+**Mouse:**
+- **Click** - Interact with BBS menus (SGR mouse protocol)
+- Works with menu systems that support mouse input
+
+**Window:**
+- **Resize** - Text scales dynamically to fit window
+- **Maximize** - Terminal content centers automatically
 
 ## Development
 
@@ -203,43 +217,59 @@ Server → Telnet Client → Terminal Emulator → GUI Display
                          Automation Scripts → Commands → Telnet Client
 ```
 
-### Recent Improvements
+### Recent Improvements (Latest First)
 
-- **Bitmap font rendering** for authentic BBS appearance
-- **Raw byte stream access** for proper character encoding
-- **Selective CP437 decoding** for ANSI box-drawing characters
-- **UTF-8 encoding** for modern BBS systems
+- **Centered terminal display** - Content centers properly when window is maximized
+- **Dynamic text scaling** - Text size adjusts smoothly with window resize, maintaining aspect ratio
+- **Mouse support** - Full SGR mouse protocol for clicking BBS menus
+- **60 FPS rendering** - Throttled updates for smooth display performance
+- **Bitmap font rendering** - Authentic BBS appearance with PT Mono font
+- **iCE colour support** - Proper bright backgrounds for ANSI art
+- **CP437 character decoding** - Correct box-drawing characters and symbols
 
 ## Project Status
 
-### Phase 1: Foundation ✅ (In Progress)
-**Goal:** Basic connectivity and display
+PyTWAT is under active development with **29 tracked issues** across **5 development phases**.
+
+### Phase 1: Foundation ✅ **COMPLETE!**
+**Deliverable:** Connect to TW server, see coloured output, type commands
 
 - ✅ Project setup (Poetry, directory structure)
 - ✅ Async telnet client with connection management
 - ✅ Terminal widget with ANSI colour support
 - ✅ Bitmap font rendering for pixel-perfect display
-- ✅ Character encoding (ASCII/UTF-8/CP437)
+- ✅ Dynamic scaling with window resize
+- ✅ Mouse support (SGR protocol)
+- ✅ Character encoding (CP437/UTF-8)
 - ✅ Event bus architecture
 - ✅ Main window GUI with connection controls
+- ✅ Centered display when maximized
 
-**Current Status:** Foundation is solid! Terminal display works great with proper ANSI rendering and character encoding.
+**Status:** ✨ Foundation complete and working excellently! Terminal emulation is professional-grade.
 
-### Phase 2: Parsing 🚧 (Next)
-**Goal:** Extract game data
+### Phase 2: Parsing 📋 **UP NEXT**
+**Deliverable:** Parse sectors, ports, ship status; display in GUI
 
-- Parser framework (regex patterns)
-- Sector, port, ship parsers
-- Prompt detection
-- Mock TW server for testing
+[**View 7 issues →**](https://github.com/Chantal13/PyTWAT/milestone/1)
+- Parser Framework (#1)
+- Prompt Detection (#2) ⚠️ Critical
+- Sector Parser (#3)
+- Port Parser (#4)
+- Ship Status Parser (#5)
+- Mock TW Server (#6)
+- Parser-EventBus Integration (#7)
 
-### Phase 3-6: Advanced Features (Planned)
+### Phases 3-6: Advanced Features
 
-See [PYTWAT-PLAN.md](PYTWAT-PLAN.md) for the complete implementation roadmap including:
-- Data persistence (SQLAlchemy + SQLite)
-- Port pair analysis
-- Automation scripts (trading, exploration, SST, CIM)
-- Advanced pathfinding
+**Phase 3: Persistence** ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/2)) - Save game data
+**Phase 4: Basic Automation** ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/3)) - Port pair trading
+**Phase 5: Full Automation** ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/4)) - SST, CIM, exploration
+**Phase 6: Polish & Release** ([7 issues](https://github.com/Chantal13/PyTWAT/milestone/5)) - v1.0 release
+
+**Track Progress:**
+- 📊 [View All Milestones](https://github.com/Chantal13/PyTWAT/milestones)
+- 📝 [View All Issues](https://github.com/Chantal13/PyTWAT/issues)
+- 📋 [Development Plan](PYTWAT-PLAN.md)
 
 ## Contributing
 
@@ -264,12 +294,16 @@ Contributions are welcome! This project is in active development.
 
 ### Areas for Contribution
 
-- Trade Wars output parsers
-- Automation scripts
-- UI improvements
-- Documentation
-- Test coverage
-- Bug fixes
+Check out our [open issues](https://github.com/Chantal13/PyTWAT/issues) for ways to contribute:
+
+- **Good First Issues**: Look for `enhancement` label
+- **High Priority**: Issues marked `critical`
+- **Current Focus**: Phase 2 (Parsing) issues
+- **Documentation**: Help improve docs and tutorials
+- **Testing**: Add test coverage for existing features
+- **Bug Fixes**: Fix reported bugs
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Background
 

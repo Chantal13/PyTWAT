@@ -1,6 +1,97 @@
-# AGENTS.md - J-TWAT Project Documentation
+# AGENTS.md - PyTWAT/J-TWAT Project Documentation
 
-## Overview
+## PyTWAT Development Guide
+
+This repository contains **PyTWAT**, a modern Python rewrite of J-TWAT. The original J-TWAT code is also present for reference. This section provides guidance for AI agents and developers working on PyTWAT.
+
+### Project Management & Issue Tracking
+
+**When to Create GitHub Issues:**
+
+Create issues for:
+- **Feature requests**: New functionality or enhancements (label: `enhancement`)
+- **Bug reports**: Problems with existing functionality (label: `bug`)
+- **Tasks within development phases**: Break down milestone work into trackable issues
+- **User-reported issues**: Screenshots showing problems, usability concerns
+- **Technical debt**: Refactoring needs, code improvements
+
+**When NOT to create issues:**
+- Trivial typo fixes or one-line changes
+- Questions that can be answered immediately
+- Temporary exploratory work
+
+**Issue Best Practices:**
+
+1. **Use descriptive titles**: "Bug: Menu word wrapping in BBS display" not "Fix bug"
+2. **Include context**:
+   - What is the expected behavior?
+   - What is the actual behavior?
+   - How to reproduce?
+   - Screenshots/code snippets if relevant
+3. **Link related issues**: Use "Related to #X" or "Depends on #X"
+4. **Assign to milestones**: Phase 2-6 milestones track major development phases
+5. **Use labels appropriately**:
+   - `bug` - Something broken
+   - `enhancement` - New feature or improvement
+   - `critical` - High priority, blocks other work
+   - `gui` - GUI-related work
+   - `parser` - Parsing-related work
+   - `automation` - Automation scripts
+   - `testing` - Test infrastructure
+   - `documentation` - Documentation updates
+
+**Project Milestones:**
+
+PyTWAT development is organized into 5 phases:
+- **Phase 2: Parsing** ([7 issues](https://github.com/Chantal13/PyTWAT/milestone/1)) - Extract game data from terminal
+- **Phase 3: Persistence** ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/2)) - SQLite storage
+- **Phase 4: Basic Automation** ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/3)) - Port pair trading
+- **Phase 5: Full Automation** ([5 issues](https://github.com/Chantal13/PyTWAT/milestone/4)) - SST, CIM scripts
+- **Phase 6: Polish & Release** ([7 issues](https://github.com/Chantal13/PyTWAT/milestone/5)) - v1.0 release
+
+**Using GitHub CLI (`gh`):**
+
+```bash
+# Create an issue
+gh issue create --title "Title" --body "Description" --label "bug"
+
+# Assign to milestone
+gh issue create --title "Title" --body "Body" --milestone "Phase 2: Parsing"
+
+# View issues
+gh issue list
+gh issue view 5
+
+# Close issues
+gh issue close 5
+```
+
+**When Working on Tasks:**
+
+1. Check existing issues first: `gh issue list`
+2. Create new issues for non-trivial work
+3. Reference issues in commit messages: "Fix menu wrapping (#33)"
+4. Close issues when work is complete
+5. Update milestone progress regularly
+
+### PyTWAT Architecture
+
+See [PYTWAT-PLAN.md](PYTWAT-PLAN.md) for the complete development roadmap and architecture.
+
+**Key Components:**
+- **Terminal Emulation** (`src/pytwat/network/`) - VT320/ANSI with pyte
+- **GUI** (`src/pytwat/gui/`) - PyQt6 desktop interface
+- **Event Bus** (`src/pytwat/core/`) - Loosely coupled messaging
+- **Parsing** (planned) - Extract game data from terminal output
+- **Automation** (planned) - Trading scripts, exploration, SST/CIM
+
+**Development Status:**
+- ✅ **Phase 1: Foundation** - Complete!
+- 📋 **Phase 2: Parsing** - UP NEXT
+
+---
+
+## J-TWAT Reference Documentation
 
 **J-TWAT** (The Java Telnet Application for Trade Wars) is a Java-based telnet client specifically designed for connecting to Trade Wars game servers.
 
