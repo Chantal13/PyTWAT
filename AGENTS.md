@@ -15,7 +15,7 @@
 - Telnet client with VT320 terminal emulation
 - Plugin-based architecture (Socket, Telnet, TW, TWStatus, Terminal)
 - Pre-configured connections to popular Trade Wars servers
-- Customizable terminal appearance and behavior
+- Customizable terminal appearance and behaviour
 - Cross-platform Java implementation
 
 ### Key Technologies
@@ -40,7 +40,7 @@ jtwat/
 └── agent-template.md      # Documentation template
 ```
 
-## Core Behaviors & Patterns
+## Core Behaviours & Patterns
 
 ### Configuration System
 - **Plugin Loading**: Plugins are loaded via the `plugins` property in [jtwat.conf](jtwat.conf)
@@ -48,7 +48,7 @@ jtwat/
   - Plugin path: `de.mud.jta.plugin`
 
 - **Layout Management**: BorderLayout-based UI structure
-  - Terminal component: Center position
+  - Terminal component: Centre position
   - TWStatus component: South position
   - TW component: North position
 
@@ -58,10 +58,10 @@ jtwat/
 - Includes timeout settings (120 seconds default)
 - Disconnect command: `exit\n`
 
-### Terminal Behavior
+### Terminal Behaviour
 - **Emulation**: VT320 terminal with IBM mode enabled
 - **Display**: 80x24 character buffer, 1000 line scrollback
-- **Colors**: White text on black background (#ffffff on #000000)
+- **Colours**: White text on black background (#ffffff on #000000)
 - **Font**: Courier, plain style, 12pt
 
 ## Conventions
@@ -162,8 +162,8 @@ ServerName<TAB>hostname<TAB>port
 
 ### Customizing Terminal Appearance
 Edit [jtwat.conf](jtwat.conf) under the "Terminal defaults" section:
-- `Terminal.foreground`: Text color (hex format)
-- `Terminal.background`: Background color (hex format)
+- `Terminal.foreground`: Text colour (hex format)
+- `Terminal.background`: Background colour (hex format)
 - `Terminal.font`: Font family
 - `Terminal.fontSize`: Font size in points
 
@@ -222,7 +222,7 @@ at TWHelp.Yylex.yylex(Unknown Source)
 - ❌ **All automated helpers** - Cannot extract game information
 
 **Root Cause:**
-The lexical analyzer (`Yylex.yylex`) has a character encoding/casting bug when running on Java 25. The code was written for Java 1.3 (2001) and relies on character handling behavior that changed in later Java versions.
+The lexical analyzer (`Yylex.yylex`) has a character encoding/casting bug when running on Java 25. The code was written for Java 1.3 (2001) and relies on character handling behaviour that changed in later Java versions.
 
 **Workarounds:**
 1. **Use as telnet client only** - Works perfectly, just no automation
