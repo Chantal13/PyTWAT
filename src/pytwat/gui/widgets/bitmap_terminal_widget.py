@@ -36,6 +36,10 @@ class BitmapTerminalWidget(QWidget):
         self.char_height = 22  # Default/minimum
         self._font_size = 16  # Default font size
 
+        # Offset for centering terminal content
+        self._offset_x = 0
+        self._offset_y = 0
+
         # Set up font (will be updated based on scaling)
         # PT Mono for better BBS display
         self.font = QFont("PT Mono", self._font_size)
@@ -218,11 +222,12 @@ class BitmapTerminalWidget(QWidget):
         painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, char)
 
     def paintEvent(self, event):
-        """Paint the back buffer to the widget."""
+        """Paint the back buffer to the widget, centered."""
         painter = QPainter(self)
         # Disable smoothing for pixel-perfect rendering
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
-        painter.drawImage(0, 0, self.back_buffer)
+        # Draw centered with offset
+        painter.drawImage(self._offset_x, self._offset_y, self.back_buffer)
 
     def sizeHint(self) -> QSize:
         """Provide size hint for layout."""
@@ -258,6 +263,12 @@ class BitmapTerminalWidget(QWidget):
         # Font size is roughly 70% of character height for good fit
         self._font_size = max(10, int(self.char_height * 0.7))
         self.font.setPointSize(self._font_size)
+
+        # Calculate centering offsets for leftover space
+        used_width = self.char_width * self.columns
+        used_height = self.char_height * self.lines
+        self._offset_x = (new_width - used_width) // 2
+        self._offset_y = (new_height - used_height) // 2
 
         # Recreate back buffer with new dimensions
         self._create_back_buffer()
@@ -314,8 +325,12 @@ class BitmapTerminalWidget(QWidget):
         Returns:
             Tuple of (column, row) in character coordinates (1-indexed for terminal)
         """
-        col = min(max(1, (x // self.char_width) + 1), self.columns)
-        row = min(max(1, (y // self.char_height) + 1), self.lines)
+        # Adjust for centering offset
+        adjusted_x = x - self._offset_x
+        adjusted_y = y - self._offset_y
+
+        col = min(max(1, (adjusted_x // self.char_width) + 1), self.columns)
+        row = min(max(1, (adjusted_y // self.char_height) + 1), self.lines)
         return (col, row)
 
     def mousePressEvent(self, event):
