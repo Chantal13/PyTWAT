@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Trade Wars 2002 Community
+    url: https://classictw.com/
+    about: Visit the official Trade Wars 2002 community site
+  - name: Original J-TWAT
+    url: http://www.goosemoose.com/~jtwat
+    about: Learn about the original J-TWAT project that inspired PyTWAT

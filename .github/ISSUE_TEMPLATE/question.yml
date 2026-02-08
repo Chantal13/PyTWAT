@@ -1,0 +1,83 @@
+name: Question
+description: Ask a question about using or developing PyTWAT
+title: "[Question]: "
+labels: ["question"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about PyTWAT? We're here to help!
+
+        **Note:** Please check the [README](https://github.com/Chantal13/PyTWAT/blob/main/README.md) and [FAQ](https://github.com/Chantal13/PyTWAT/blob/main/README.md#faq) first.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What is your question about?
+      options:
+        - Installation / Setup
+        - Usage / How-to
+        - Development / Contributing
+        - Features / Functionality
+        - Trade Wars 2002 Integration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Ask your question in detail.
+      placeholder: How do I...?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Provide any relevant context, what you've tried, or where you looked for answers.
+      placeholder: |
+        I've tried...
+        I checked the README but...
+        I'm working on...
+    validations:
+      required: false
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version (if relevant)
+      description: Output of `python --version`
+      placeholder: "Python 3.11.5"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System (if relevant)
+      description: What operating system are you using?
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Other
+        - Not applicable
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have checked the README and FAQ
+          required: true
+        - label: I have searched existing issues for similar questions
+          required: true
