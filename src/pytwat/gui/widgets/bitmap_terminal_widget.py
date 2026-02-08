@@ -17,7 +17,7 @@ class BitmapTerminalWidget(QWidget):
     fixed-pitch fonts with exact positioning.
     """
 
-    # Signal emitted when user presses a key
+    # Signal emitted when user presses a key or clicks mouse
     data_entered = pyqtSignal(str)
 
     def __init__(self, parent=None, columns: int = 80, lines: int = 24):
@@ -25,6 +25,9 @@ class BitmapTerminalWidget(QWidget):
 
         self.columns = columns
         self.lines = lines
+
+        # Mouse support state
+        self._mouse_tracking_enabled = True  # Enable by default for BBS compatibility
 
         # Character dimensions (scaled up for modern displays)
         self.char_width = 11
@@ -46,6 +49,7 @@ class BitmapTerminalWidget(QWidget):
 
         # Widget configuration
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setMouseTracking(False)  # Only track on button press, not hover
         self.setMinimumSize(
             self.columns * self.char_width,
             self.lines * self.char_height
@@ -261,3 +265,66 @@ class BitmapTerminalWidget(QWidget):
         """Clear the terminal display."""
         self.back_buffer.fill(QColor(0, 0, 0))
         self.update()
+
+    def _pixel_to_char_coords(self, x: int, y: int) -> tuple[int, int]:
+        """
+        Convert pixel coordinates to character cell coordinates.
+
+        Args:
+            x: X pixel position
+            y: Y pixel position
+
+        Returns:
+            Tuple of (column, row) in character coordinates (1-indexed for terminal)
+        """
+        col = min(max(1, (x // self.char_width) + 1), self.columns)
+        row = min(max(1, (y // self.char_height) + 1), self.lines)
+        return (col, row)
+
+    def mousePressEvent(self, event):
+        """Handle mouse button press events."""
+        if not self._mouse_tracking_enabled:
+            return
+
+        # Get character coordinates (1-indexed)
+        col, row = self._pixel_to_char_coords(event.pos().x(), event.pos().y())
+
+        # Determine button code (SGR mode)
+        # 0 = left, 1 = middle, 2 = right
+        button = 0
+        if event.button() == Qt.MouseButton.LeftButton:
+            button = 0
+        elif event.button() == Qt.MouseButton.MiddleButton:
+            button = 1
+        elif event.button() == Qt.MouseButton.RightButton:
+            button = 2
+        else:
+            return
+
+        # Send SGR mouse sequence: ESC[<button;col;rowM
+        # SGR mode is more modern and widely supported
+        mouse_seq = f"\x1b[<{button};{col};{row}M"
+        self.data_entered.emit(mouse_seq)
+
+    def mouseReleaseEvent(self, event):
+        """Handle mouse button release events."""
+        if not self._mouse_tracking_enabled:
+            return
+
+        # Get character coordinates (1-indexed)
+        col, row = self._pixel_to_char_coords(event.pos().x(), event.pos().y())
+
+        # Determine button code
+        button = 0
+        if event.button() == Qt.MouseButton.LeftButton:
+            button = 0
+        elif event.button() == Qt.MouseButton.MiddleButton:
+            button = 1
+        elif event.button() == Qt.MouseButton.RightButton:
+            button = 2
+        else:
+            return
+
+        # Send SGR mouse release sequence: ESC[<button;col;rowm (lowercase 'm')
+        mouse_seq = f"\x1b[<{button};{col};{row}m"
+        self.data_entered.emit(mouse_seq)

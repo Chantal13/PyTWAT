@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
         """Handle disconnect button click."""
         await self.telnet_client.disconnect()
 
-    @qasync.asyncSlot()
+    @qasync.asyncSlot(str)
     async def _on_terminal_input(self, data: str):
         """Handle input from terminal widget."""
         if self.telnet_client.connected:
