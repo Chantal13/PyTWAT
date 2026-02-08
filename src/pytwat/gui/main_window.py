@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QLineEdit, QLabel, QSpinBox, QStatusBar
 )
 from PyQt6.QtCore import Qt, QTimer
+import qasync
 
 from .widgets.bitmap_terminal_widget import BitmapTerminalWidget
 from ..network.telnet_client import TelnetClient
@@ -27,13 +28,18 @@ class MainWindow(QMainWindow):
         self.terminal_emulator = TerminalEmulator()
         self.event_bus = get_event_bus()
 
+        # Render throttling state
+        self._render_pending = False
+        self._render_timer = QTimer()
+        self._render_timer.setSingleShot(True)
+        self._render_timer.timeout.connect(self._do_render)
+
         # Subscribe to events
         self.event_bus.subscribe(EventType.DATA_RECEIVED, self._on_data_received)
         self.event_bus.subscribe(EventType.CONNECTED, self._on_connected)
         self.event_bus.subscribe(EventType.DISCONNECTED, self._on_disconnected)
 
         self._init_ui()
-        self._setup_asyncio()
 
     def _init_ui(self):
         """Initialize the user interface."""
@@ -78,55 +84,41 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Ready")
 
-    def _setup_asyncio(self):
-        """Set up asyncio event loop integration with Qt."""
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-
-        # Run asyncio tasks periodically (less frequently to reduce CPU usage)
-        self.async_timer = QTimer()
-        self.async_timer.timeout.connect(self._process_async_tasks)
-        self.async_timer.start(50)  # Process every 50ms (was 10ms - too fast!)
-
-    def _process_async_tasks(self):
-        """Process asyncio tasks in the Qt event loop."""
-        # Run pending asyncio tasks without blocking
-        self.loop.call_soon(self.loop.stop)
-        self.loop.run_forever()
-
-    def _on_connect_clicked(self):
+    @qasync.asyncSlot()
+    async def _on_connect_clicked(self):
         """Handle connect button click."""
         host = self.host_input.text()
         port = self.port_input.value()
 
         self.status_bar.showMessage(f"Connecting to {host}:{port}...")
-        asyncio.run_coroutine_threadsafe(
-            self.telnet_client.connect(host, port),
-            self.loop
-        )
+        await self.telnet_client.connect(host, port)
 
-    def _on_disconnect_clicked(self):
+    @qasync.asyncSlot()
+    async def _on_disconnect_clicked(self):
         """Handle disconnect button click."""
-        asyncio.run_coroutine_threadsafe(
-            self.telnet_client.disconnect(),
-            self.loop
-        )
+        await self.telnet_client.disconnect()
 
-    def _on_terminal_input(self, data: str):
+    @qasync.asyncSlot()
+    async def _on_terminal_input(self, data: str):
         """Handle input from terminal widget."""
         if self.telnet_client.connected:
-            asyncio.run_coroutine_threadsafe(
-                self.telnet_client.send(data),
-                self.loop
-            )
+            await self.telnet_client.send(data)
 
     def _on_data_received(self, event: Event):
         """Handle data received from server."""
         data = event.data.get("data", "")
         # Feed to terminal emulator for proper ANSI/cursor handling
         self.terminal_emulator.feed(data)
-        # Render the screen buffer with proper formatting
+
+        # Schedule render (throttled to 60 FPS)
+        if not self._render_pending:
+            self._render_pending = True
+            self._render_timer.start(16)  # ~60 FPS (16ms between frames)
+
+    def _do_render(self):
+        """Perform the actual render (called by timer)."""
         self.terminal_widget.render_screen(self.terminal_emulator.screen)
+        self._render_pending = False
 
     def _on_connected(self, event: Event):
         """Handle connection established."""
@@ -147,12 +139,9 @@ class MainWindow(QMainWindow):
         self.connect_button.setEnabled(True)
         self.disconnect_button.setEnabled(False)
 
-    def closeEvent(self, event):
+    @qasync.asyncClose
+    async def closeEvent(self, event):
         """Handle window close event."""
         if self.telnet_client.connected:
-            asyncio.run_coroutine_threadsafe(
-                self.telnet_client.disconnect(),
-                self.loop
-            )
-        self.loop.stop()
+            await self.telnet_client.disconnect()
         super().closeEvent(event)

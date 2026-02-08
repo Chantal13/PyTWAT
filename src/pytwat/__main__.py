@@ -5,7 +5,9 @@ Run with: poetry run python -m pytwat
 """
 
 import sys
+import asyncio
 from PyQt6.QtWidgets import QApplication
+import qasync
 from .gui.main_window import MainWindow
 
 
@@ -15,10 +17,15 @@ def main():
     app.setApplicationName("PyTWAT")
     app.setOrganizationName("PyTWAT")
 
+    # Set up qasync event loop for proper Qt/asyncio integration
+    loop = qasync.QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    with loop:
+        sys.exit(loop.run_forever())
 
 
 if __name__ == "__main__":

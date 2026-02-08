@@ -4,11 +4,14 @@ Terminal Emulator - VT320/ANSI terminal emulation using pyte.
 Processes ANSI escape sequences and maintains a virtual screen buffer.
 """
 
+import re
 import pyte
 from typing import List
 
 
 class TerminalEmulator:
+    # Pre-compiled regex pattern for ANSI SGR sequences (class-level constant)
+    _ANSI_PATTERN = re.compile(r'(\x1b\[([0-9;]*)m)')
     """
     VT320 terminal emulator wrapper around pyte.
 
@@ -44,9 +47,9 @@ class TerminalEmulator:
 
     def _convert_ice_colors(self, data: str) -> str:
         """
-        Convert iCE color sequences to bright backgrounds.
+        Convert iCE colour sequences to bright backgrounds.
 
-        In iCE color mode, ESC[5m (blink) combined with a background color
+        In iCE colour mode, ESC[5m (blink) combined with a background colour
         means bright background. We convert these to ESC[10Xm codes that
         pyte can render directly.
 
@@ -54,20 +57,19 @@ class TerminalEmulator:
             data: Raw terminal data with ANSI codes
 
         Returns:
-            Data with iCE colors converted to bright backgrounds
+            Data with iCE colours converted to bright backgrounds
         """
-        import re
+        # Early exit if no ANSI escape sequences present
+        if '\x1b[' not in data:
+            return data
 
         # Track current state
         result = []
         has_blink = False
         current_bg = None
 
-        # Pattern to match ANSI SGR sequences
-        ansi_pattern = re.compile(r'(\x1b\[([0-9;]*)m)')
-
         last_end = 0
-        for match in ansi_pattern.finditer(data):
+        for match in self._ANSI_PATTERN.finditer(data):
             # Add text before this code
             result.append(data[last_end:match.start()])
 
@@ -84,12 +86,12 @@ class TerminalEmulator:
                     # Blink - set flag but don't add to output
                     has_blink = True
                 elif code.startswith('4') and len(code) == 2 and code[1].isdigit():
-                    # Background color (40-47)
-                    bg_color_num = int(code[1])
-                    current_bg = bg_color_num
+                    # Background colour (40-47)
+                    bg_colour_num = int(code[1])
+                    current_bg = bg_colour_num
                     if has_blink:
                         # Convert to bright background (100-107)
-                        new_codes.append(f'10{bg_color_num}')
+                        new_codes.append(f'10{bg_colour_num}')
                     else:
                         new_codes.append(code)
                 else:
